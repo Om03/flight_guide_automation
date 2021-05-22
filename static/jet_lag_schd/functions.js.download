@@ -1,0 +1,529 @@
+// Browser detection for when you get desparate. A measure of last resort.
+// http://rog.ie/post/9089341529/html5boilerplatejs
+// sample CSS: html[data-useragent*='Chrome/13.0'] { ... }
+//
+// var b = document.documentElement;
+// b.setAttribute('data-useragent',  navigator.userAgent);
+// b.setAttribute('data-platform', navigator.platform);
+Modernizr.load({
+    test: Modernizr.inputtypes.date && Modernizr.inputtypes.time,
+    nope: C5_THEME + "js/jquery-ui-1.11.4/jquery-ui.min.js",
+    callback: function() {
+        $("input[type=date]").datepicker({ dateFormat: 'dd/mm/yy' });
+        $("input[type=time]").attr("type", "text");
+
+        $("input[type=date]").each(function(){
+            $(this).attr("placeholder", "");
+            $(this).val($(this).attr("data-for-ie"));
+        });
+
+        $("input[type=time]").each(function(){
+            $(this).attr("placeholder", "");
+        });
+    }
+});
+
+// remap jQuery to $
+(function($){
+
+	/* trigger when page is ready */
+	$(document).ready(function ()
+    {
+        var $window = $(window);
+
+        if(navigator.platform === "Win32")
+        {
+            $("body").addClass("Win32");
+        }
+        else
+        {
+            $("body").addClass("NotWin32");
+        }
+
+        $('.query-value').each(function (i, element) {
+            var $element = $(element);
+            if(getUrlParameter($element.attr('name'))) {
+                var $tmp = $("<div>");
+                $tmp.text(getUrlParameter($element.attr('name')));
+                $element.val($tmp.text());
+            } else {
+                if($element.hasClass('date-today')) {
+                    var date = new Date(startingTimestampMs);
+                    var month = date.getMonth();
+                    var day = date.getUTCDate();
+
+                    if(month < 10) {
+                        month = "0" + month;
+                    }
+
+                    if(day < 10) {
+                        day = "0" + day;
+                    }
+
+                    $element.val(date.getFullYear() + '-' + month + '-' + day);
+                }
+            }
+        });
+
+        var showscheduleHandler = function() {
+            $(".toggle-text").on("click touchstart", function (e) {
+                e.preventDefault();
+                $(".text-wrapper-toggle").slideToggle();
+                $(".shower").toggle();
+                $(".hider").toggle();
+            });
+        };
+
+        showscheduleHandler();
+
+        $("[name='departing_on_date']").on("change", function(){
+            $("[name='arriving_on_date']").val($(this).val());
+        })
+
+        // FAQS
+        $("#faqs").find("h2").on("click touchstart", function(){
+            var dataId = $(this).attr("data-id");
+            if($window.width() > 420)
+                $(".content").find("div[data-id]").slideUp(400);
+            else
+                $(".content").find("div[data-id]").hide();
+
+
+            if($window.width() > 420)
+            {
+                setTimeout(
+                    function(){
+                        var div = $(".content").find("div[data-id='"+dataId+"']");
+                        var h2 = $(".content").find("h2[data-id='"+dataId+"']");
+                        div.slideDown(400);
+                        $window.scrollTo(h2, 500);
+                    }, 50);
+            }
+            else
+            {
+                var div = $(".content").find("div[data-id='"+dataId+"']");
+                var h2 = $(".content").find("h2[data-id='"+dataId+"']");
+                div.show();
+                $window.scrollTo(h2);
+            }
+        });
+
+        $("form.input_form").on("submit", function(e){
+            e.preventDefault();
+
+            if(!$("[name='to']").val())
+            {
+                alert("You must select an arrival airport from the live search results.");
+                return false;
+            }
+
+            if(!$("[name='from']").val())
+            {
+                alert("You must select a departure airport from the live search results.");
+                return false;
+            }
+
+            var pushUrl = '?submit=1&';
+
+            $('.query-value').each(function (i, element) {
+                var $element = $(element);
+                var $tmp = $("<div>");
+                $tmp.text($element.val());
+                pushUrl += $element.attr('name') + '=' + $tmp.text() + '&';
+            });
+
+            window.history.pushState('x', 'Jet Lag Calculator - How To Beat Jet Lag', pushUrl);
+
+            var $form = $(this);
+
+            $.ajax(API_ENDPOINT + '?submit=1', {data: $form.serialize()})
+                .done( function(data)
+                {
+                    data = data.replace(/https\:\/\/www.web-blinds.com\/resources\/testjl\//gim, '/static/jet-lag-calculator/')
+                    $('#content_wrap').html(data);
+                    initAvAnimations();
+                    initSunAnimations();
+                    initZzzAnimations();
+                    showscheduleHandler();
+                })
+                .error(function (res) {
+                    if(res.responseText) {
+                        $('#error-wrapper').html(res.responseText);
+                    } else {
+                        $('#error-wrapper').html('<ul><li class="error">An unknown error occurred, please refresh this page and re submit this form.</li></ul>');
+                    }
+                });
+            ;
+        });
+
+        if(1 === parseInt(getUrlParameter('submit'))) {
+            $("form.input_form").submit();
+        }
+
+        var renderAvs = function($this, $wHeight) {
+            var scrollPosition = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+            var top = parseInt($this.offset().top) - scrollPosition;
+            var distanceFromBottom = $wHeight - top;
+
+            if (distanceFromBottom < 0)
+                return;
+
+            var id = $this.attr("data-id");
+
+            var fromLeft = distanceFromBottom/4;
+            var fromTop = distanceFromBottom/8;
+
+            var limit = 148;
+
+            if($window.width() <= 420)
+                limit = 100;
+
+            if(fromLeft > 0 && fromLeft <= limit) {
+                $("[data-id='"+id+"'] .emerging_av.av_sun").css("opacity", 1);
+                $("[data-id='" + id + "'] .emerging_av.av_sun").css("left", fromLeft + "px").css("top", fromTop + "px");
+            }
+            else if(fromLeft > 0)
+            {
+                $("[data-id='"+id+"'] .emerging_av.av_sun").css("opacity", 0);
+            }
+
+        }
+
+        var renderSuns = function($this, $wHeight) {
+            var scrollPosition = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+            var top = parseInt($this.offset().top) - scrollPosition;
+            var distanceFromBottom = $wHeight - top;
+
+            if(distanceFromBottom < 0)
+                return;
+
+            var id = $this.attr("data-id");
+
+            if(distanceFromBottom > 400)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun-full").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 370)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun9").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 340)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun8").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 310)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun7").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 280)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun6").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 250)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun5").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 220)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun4").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 190)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun3").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 160)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun2").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 130)
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun1").show().removeClass("none");
+            }
+            else
+            {
+                $("[data-id='"+id+"'] .emerging_sun").hide();
+                $("[data-id='"+id+"'] .emerging_sun.sun0").show().removeClass("none");
+            }
+        };
+
+        var renderZZZs = function($this, $wHeight) {
+            var scrollPosition = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+            var top = parseInt($this.offset().top) - scrollPosition;
+            var distanceFromBottom = $wHeight - top;
+
+            if(distanceFromBottom < 0)
+                return;
+
+            var id = $this.attr("data-id");
+
+            if(distanceFromBottom > 350)
+            {
+                $("[data-id='"+id+"'] .emerging_zzz").hide();
+                $("[data-id='"+id+"'] .emerging_zzz.z-full").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 300)
+            {
+                $("[data-id='"+id+"'] .emerging_zzz").hide();
+                $("[data-id='"+id+"'] .emerging_zzz.z4").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 250)
+            {
+                $("[data-id='"+id+"'] .emerging_zzz").hide();
+                $("[data-id='"+id+"'] .emerging_zzz.z3").show().removeClass("none");
+            }
+            else if(distanceFromBottom > 200)
+            {
+                $("[data-id='"+id+"'] .emerging_zzz").hide();
+                $("[data-id='"+id+"'] .emerging_zzz.z2").show().removeClass("none");
+            }
+            else
+            {
+                $("[data-id='"+id+"'] .emerging_zzz").hide();
+                $("[data-id='"+id+"'] .emerging_zzz.z1").show().removeClass("none");
+            }
+        };
+
+        var initAvAnimations = function() {
+            // Results animations
+            $(".av_wrapper").each(function () {
+
+                var $this = $(this);
+                var $wHeight = $window.height();
+
+                renderAvs($this, $wHeight);
+
+                $window.scroll(function () {
+                    renderAvs($this, $wHeight);
+                });
+            });
+        }
+
+        var initSunAnimations = function() {
+            $(".emerging_sun_wrapper").each(function () {
+
+                var $this = $(this);
+                var $wHeight = $window.height();
+
+                renderSuns($this, $wHeight);
+
+                $window.scroll(function () {
+                    renderSuns($this, $wHeight);
+                });
+            });
+        }
+
+        var initZzzAnimations = function() {
+            $(".emerging_zzz_wrapper").each(function () {
+
+                var $this = $(this);
+                var $wHeight = $window.height();
+
+                renderZZZs($this, $wHeight);
+
+                $window.scroll(function () {
+                    renderZZZs($this, $wHeight);
+                });
+            });
+        };
+
+        initAvAnimations();
+        initSunAnimations();
+        initZzzAnimations();
+
+        // 3D
+        $('.sprite_3d').each(function()
+        {
+            var $bgobj = $(this);
+            var top = parseInt($bgobj.css("top"));
+
+            $window.scroll(function() {
+                var yPos = $window.scrollTop() * parseFloat($bgobj.data('speed'));
+                if(yPos > 1000)
+                    return;
+                var newTop =  "" + (top + yPos) + 'px';
+                $bgobj.css({ top: newTop });
+            });
+        });
+
+        $('#plane').each(function()
+        {
+            var $bgobj = $(this);
+            var top = parseInt($bgobj.css("top"));
+            var left = parseInt($bgobj.css("left"));
+
+            $window.scroll(function() {
+                var yPos = $window.scrollTop();
+                if(yPos > 1000)
+                    return;
+                var newTop =  "" + (top - yPos) + 'px';
+                var newLeft =  "" + (left + yPos) + 'px';
+                $bgobj.css({ top: newTop, left: newLeft });
+            });
+        });
+
+        // Airport look up
+        var flyingToOptions = {
+            callback: function (value) {
+                searchAirports($("#flying_to"), value)
+            },
+            wait: 850,
+            highlight: true,
+            captureLength: 0
+        };
+        var flyingFromOptions = {
+            callback: function (value) {
+                searchAirports($("#flying_from"), value)
+            },
+            wait: 850,
+            highlight: true,
+            captureLength: 0
+        };
+
+        var searchAirports = function(input, value) {
+
+            var loader = C5_THEME + "images/ajax-loader.gif";
+            input.after("<img class='search-loader' src='"+loader+"' />");
+
+            var hiddenInput = $("input[type='hidden'][data-direction='" + input.attr("data-direction") + "']");
+
+            input.removeClass("success");
+
+            if(value.length === 0)
+            {
+                hiddenInput.val("");
+                $(".search-loader").remove();
+                return;
+            }
+
+            if(value.length < 2)
+            {
+                $(".search-loader").remove();
+                return;
+            }
+
+            var loc = $('<div>').text(value);
+
+            $.getJSON( AIRPORT_ENDPOINT + "?loc=" + loc.text(), function(data)
+            {
+                if(!data)
+                {
+                    removeLiveLists();
+                    return notFound(input, false);
+                }
+                else if(data.status && data.status === "fail")
+                {
+                    removeLiveLists();
+                    return notFound(input, data.text);
+                }
+                else
+                {
+                    appendResults(input, data);
+                    $(".search-loader").remove();
+                }
+
+            });
+        };
+
+        function appendResults(input, data)
+        {
+            removeLiveLists();
+
+            var ul = $("<ul></ul>").addClass("live_list").attr("data-direction", input.attr("data-direction"));
+            var limit = 10;
+
+            if(data.length < 1)
+                return notFound(input, false);
+
+            $.each(data, function(index, value)
+            {
+                if(index >= limit)
+                    return;
+
+                if(value.city.length > 0)
+                    var loc = value.city+", "+value.country;
+                else
+                    var loc = value.country;
+
+                ul.append("<li class='selectable' data-id='"+value.id+"' data-name='"+value.name+"' data-location='"+value.city+", "+value.country+"' data-code='"+value.icao+"' data-direction='"+input.attr("data-direction")+"'>"+value.name+"<br/><small>"+loc+"</small></li>");
+            });
+
+            input.after(ul);
+        }
+
+        function notFound(input, text)
+        {
+            if(!text)
+                text = "No airports found";
+
+            var ul = $("<ul></ul>").addClass("live_list").attr("data-direction", input.attr("data-direction"));
+            ul.append("<li class='error'><strong>"+text+"</strong></li>");
+            input.after(ul);
+        }
+
+        function removeLiveLists() {
+            $(".search-loader").remove();
+            $("ul.live_list").remove();
+        }
+
+        function hideLiveLists() {
+            $(".search-loader").remove();
+            $("ul.live_list").hide();
+        }
+
+        $("#flying_to").typeWatch( flyingToOptions );
+        $("#flying_from").typeWatch( flyingFromOptions );
+
+        $("#flying_to, #flying_from").on("blur", function(){
+            setTimeout(
+                function(){
+                    hideLiveLists();
+                }, 500
+            );
+        });
+
+        $("#flying_to, #flying_from").on("focus", function(){
+            var directionList = $(this).attr("data-direction");
+            var list = $("ul.live_list[data-direction='" + directionList + "']");
+
+            if(list.length)
+                list.show();
+        });
+
+        $("#content_wrap").on("click touchstart", "li.selectable", function(){
+            var direction = $(this).attr("data-direction");
+            var id = $(this).attr("data-id");
+            var code = $(this).attr("data-code");
+            var name = $(this).attr("data-name");
+            var location = $(this).attr("data-location");
+
+            $("input[type='hidden'][data-direction='" + direction + "']").val(id);
+            $("input[type='hidden'][data-direction='" + direction + "_location']").val(location);
+            $("input[type='text'][data-direction='" + direction + "']").val(name).addClass("success");
+
+        });
+	});
+	
+	
+	/* optional triggers
+	
+	$(window).load(function() {
+		
+	});
+	
+	$(window).resize(function() {
+		
+	});
+	
+	*/
+
+})(window.jQuery);

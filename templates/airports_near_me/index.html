@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" /> -->
+    <style>
+        * {
+            margin: 0;
+        }
+
+        .container1 {
+            display: flex;
+            
+            height: 100px;
+            align-items: center;
+            justify-content: center;
+            background-image: url('1.JPG');
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-position: 75% 25%;
+            /* position: sticky; */
+            top: 0%;
+        }
+
+        .container1 image {
+            width: 200px;
+        }
+
+        .inside {
+            border: 2px solid rgb(142, 209, 214);
+            margin: 20px;
+            height: auto;
+            border-radius: 5px;
+
+        }
+
+        .label {
+            display: flex;
+            height: 51px;
+            border: 2px solid rgb(137, 218, 238);
+            width: 50%;
+            border-radius: 20px;
+            background-color: rgb(194, 247, 247);
+            opacity: .8;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .jsadder {
+            border-bottom: 2px solid aqua;
+            margin: 25px 20px;
+            padding: 5px;
+        }
+
+        @keyframes la {
+            from {
+                position: relative;
+                left: -25%;
+            }
+
+            to {
+                position: relative;
+                left: 25%;
+            }
+        }
+
+        .label {
+            animation-name: la;
+            animation-duration: 4s;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+        }
+        .titles {
+            display: inline-block;
+            width: 80px;
+        }
+    </style>
+</head>
+
+<body style="background-image: url({{ url_for('static', filename='Contact Form 06_files/kj_d_map.png') }});">
+    <div class="Whole" id="1">
+        <div class="container1" id="id">
+            <div class="label">
+                <div class="labeltext">AIRPORTS NEAR ME</div>
+            </div>
+        </div>
+        <div class="inside" id="xyz" style="color: aliceblue;">
+            {% for j in airport_info %}
+                <div class="jsadder">
+                    <p><p class="titles">Name-</p>{{ j[0] }}</p>
+
+                    {% if j[1] != "None" %}
+                        <p><p class="titles">phone no.-</p><a style="color: #74dada;" href="{{ j[1] }}">{{ j[1] }}</a></p>
+                    {% else %}
+                        <p><p class="titles">phone no.-</p>Not available</p>
+                    {% endif %}
+
+                    {% if j[2]!= "None" %}
+                        <p><p class="titles">Website-</p><a style="color: #74dada;" href="{{ j[2] }}">{{ j[2] }}</a></p>
+                    {% else %}
+                        <p><p class="titles">Website-</p>Not available</p>
+                    {% endif %}
+
+                        <p><p class="titles">Address-</p>{{ j[3] }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
+    x = []
+    y =[]
+    function createtemp(name){
+        var div = document.createElement("Button");
+        div.id = name;
+        div.setAttribute("onclick","set(this.id)")
+        div.innerHTML = name
+        div.className ="button";
+        document.getElementById("xyz").appendChild(div);
+    }
+
+    function creatediv(Name, phone, website, add,name) {
+
+        document.getElementById(name).style.display = 'None';
+        var div1 = document.createElement("div");
+        div1.className = "jsadder"
+
+        var newDiv = document.createElement("div");
+        newDiv.className = "left"
+
+        var newUL = document.createElement("ul");
+
+        var newLI1 = document.createElement("li");
+        newLI1.className = "x";
+        newLI1.innerHTML = "Name";
+
+        var newLI2 = document.createElement("li");
+        newLI2.className = "x";
+        newLI2.innerHTML = "Phone Number";
+
+        var newLI4 = document.createElement("li");
+        newLI4.className = "x";
+        newLI4.innerHTML = "Website";
+
+        var newLI5 = document.createElement("li");
+        newLI5.className = "x";
+        newLI5.innerHTML = "Adderess";
+
+        newUL.appendChild(newLI1);
+        newUL.appendChild(newLI2);
+        newUL.appendChild(newLI4);
+        newUL.appendChild(newLI5);
+
+        newDiv.appendChild(newUL);
+
+        div1.appendChild(newDiv);
+
+        var newDiv2 = document.createElement("div");
+        newDiv2.className = "right"
+
+        var newUL2 = document.createElement("ul");
+
+        var newLI12 = document.createElement("li");
+        newLI12.className = "x";
+        newLI12.innerHTML = Name;
+
+        var newLI22 = document.createElement("li");
+        newLI22.className = "x";
+        newLI22.innerHTML = phone;
+
+        var newLI42 = document.createElement("li");
+        newLI42.className = "x";
+        newLI42.innerHTML = website;
+
+        var newLI52 = document.createElement("li");
+        newLI52.className = "x";
+        newLI52.innerHTML = add;
+
+        newUL2.appendChild(newLI12);
+        newUL2.appendChild(newLI22);
+        newUL2.appendChild(newLI42);
+        newUL2.appendChild(newLI52);
+
+        newDiv2.appendChild(newUL2);
+        div1.appendChild(newDiv2);
+
+        document.getElementById("xyz").appendChild(div1)
+    }
+
+    function get() {
+        $.ajax({
+            type: "POST",
+            url: '/get_ans',
+            dataType: "json",
+            data: JSON.stringify(),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+             x = data;
+             i=0;
+             x.forEach(element => {
+               createtemp(x[i])
+               i++;
+             });  
+            }
+        });
+    }
+console.log(x);
+function set(airport_name){
+$.ajax({
+            type: "POST",
+            url: '/get_airport',
+            dataType: "json",
+            data: JSON.stringify(airport_name),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (data) {
+                i = 0
+                y = data
+                creatediv(data[0],data[1],data[2],data[3],name);
+            }
+        });
+    }
+get();
+</script> -->
+
+</html>

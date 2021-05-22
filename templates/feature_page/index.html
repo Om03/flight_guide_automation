@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="shortcut icon"
+      href="https://www.hillarys.co.uk/static/jet-lag-calculator/favicon.ico"
+    />
+
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Raleway:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+
+    <title>Features</title>
+    <!--
+SOFTY PINKO
+https://templatemo.com/tm-535-softy-pinko
+-->
+
+    <!-- Additional CSS Files -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='feature_page/css/bootstrap.min.css') }}"
+    />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='feature_page/css/font-awesome.css') }}"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='feature_page/css/templatemo-softy-pinko.css') }}"
+    />
+  </head>
+
+  <body>
+    <!-- ***** Welcome Area Start ***** -->
+    <div class="welcome-area" id="welcome">
+      <!-- ***** Header Text Start ***** -->
+      <div class="header-text">
+        <div class="container">
+          <div class="row">
+            <div
+              class="
+                offset-xl-3
+                col-xl-6
+                offset-lg-2
+                col-lg-8 col-md-12 col-sm-12
+              "
+            >
+              <h1>
+                We provide the best <strong>strategy</strong><br />to keep you
+                <strong>up and atom</strong>
+              </h1>
+              <!-- <p>Softy Pinko is a professional Bootstrap 4.0 theme designed by Template Mo 
+                        for your company at absolutely free of charge</p> -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ***** Header Text End ***** -->
+    </div>
+    <!-- ***** Welcome Area End ***** -->
+
+    <!-- ***** Features Small Start ***** -->
+    <section class="section home-feature">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="row">
+              <!-- ***** Features Small Item Start ***** -->
+              <div
+                class="col-lg-4 col-md-6 col-sm-6 col-12"
+                data-scroll-reveal="enter bottom move 50px over 0.6s after 0.2s"
+              >
+                <a href="{{ url_for('jet_lag') }}">
+                  <button type="button" class="features-small-item">
+                    <div class="icon">
+                      <i
+                        ><img
+                          src="{{ url_for('static', filename='feature_page/images/featured-item-01.png') }}"
+                          alt=""
+                      /></i>
+                    </div>
+                    <h5 class="features-title">Jetlag Management</h5>
+                    <p>
+                      A perfect time table when one should seek in sunlight and
+                      many more options.
+                    </p>
+                  </button>
+                </a>
+              </div>
+              <!-- ***** Features Small Item End ***** -->
+
+              <!-- ***** Features Small Item Start ***** -->
+              <div
+                class="col-lg-4 col-md-6 col-sm-6 col-12"
+                data-scroll-reveal="enter bottom move 50px over 0.6s after 0.4s"
+              >
+                <!-- <a href="{{ url_for('show_port') }}"> -->
+                <form action="{{ url_for('show_port') }}" method="post">
+                  <input
+                    type="text"
+                    id="lol"
+                    name="z_cordt"
+                    style="display: none"
+                  />
+                  <input
+                    type="text"
+                    id="lol1"
+                    name="y_cordt"
+                    style="display: none"
+                  />
+                  <input
+                    type="submit"
+                    value="Submit"
+                    id="lol3"
+                    style="display: none"
+                  />
+                  <button
+                    type="button"
+                    class="features-small-item"
+                    onclick="getLocation()"
+                  >
+                    <div class="icon">
+                      <i
+                        ><img
+                          src="{{ url_for('static', filename='feature_page/images/featured-item-01.png') }}"
+                          alt=""
+                      /></i>
+                    </div>
+                    <h5 class="features-title">Show my port</h5>
+                    <p>
+                      Travel directly to the airport with the shortest distance
+                      being guided on the map.
+                    </p>
+                  </button>
+                </form>
+                <!-- </a> -->
+              </div>
+              <!-- ***** Features Small Item End ***** -->
+              <script>
+                function getLocation() {
+                  if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                  } else {
+                    x.innerHTML =
+                      "Geolocation is not supported by this browser.";
+                  }
+                }
+
+                function showPosition(position) {
+                  z = position.coords.latitude;
+                  y = position.coords.longitude;
+                  document.getElementById("lol").value = z;
+                  document.getElementById("lol1").value = y;
+                  document.getElementById("lol3").click();
+                  console.log(z, y);
+                }
+              </script>
+              <!-- ***** Features Small Item Start ***** -->
+              <div
+                class="col-lg-4 col-md-6 col-sm-6 col-12"
+                data-scroll-reveal="enter bottom move 50px over 0.6s after 0.6s"
+              >
+                <a href="{{ url_for('airport_near') }}">
+                  <button type="button" class="features-small-item">
+                    <div class="icon">
+                      <i
+                        ><img
+                          src="{{ url_for('static', filename='feature_page/images/featured-item-01.png') }}"
+                          alt=""
+                      /></i>
+                    </div>
+                    <h5 class="features-title">Airports near me</h5>
+                    <p>
+                      Location of all the nearby airports and will display
+                      detailed list of the same.
+                    </p>
+                  </button>
+                </a>
+              </div>
+              <!-- ***** Features Small Item End ***** -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ***** Features Small End ***** -->
+  </body>
+</html>
